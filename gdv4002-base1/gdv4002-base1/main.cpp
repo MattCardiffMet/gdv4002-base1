@@ -18,7 +18,12 @@ int main(void) {
 	//
 	// Setup game scene objects here
 	//
-	
+
+	float pi = 3.14159265f;
+	addObject("player1");
+	addObject("player2");
+	GameObject2D* player1Object = getObject("player1");
+
 
 	// Enter main loop - this handles update and render calls
 	engineMainLoop();
