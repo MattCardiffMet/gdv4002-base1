@@ -19,11 +19,16 @@ int main(void) {
 	// Setup game scene objects here
 	//
 
-	float pi = 3.14159265f;
-	addObject("player1");
-	addObject("player2");
-	GameObject2D* player1Object = getObject("player1");
+	hideAxisLines(); // this function removes the ugly lines. I really hate them :(
 
+	// the following section is variable initialization
+	// ------------------------------------------------
+	float pi = 3.14159265f;
+	addObject("player");
+	addObject("asteroid");
+	GameObject2D* player = getObject("player", "Resources\\Textures\\player1_ship.png");
+	GameObject2D* asteroid = getObject("asteroid", glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png");
+	// ------------------------------------------------
 
 	// Enter main loop - this handles update and render calls
 	engineMainLoop();
@@ -34,5 +39,4 @@ int main(void) {
 	// return success :)
 	return 0;
 }
-
 
