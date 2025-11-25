@@ -1,12 +1,26 @@
 #include "Engine.h"
 
+void myEngineLoop(GLFWwindow* window, double tDelta);
+void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
+void playerControl(double tDelta);
+
+
 // Function prototypes
+
+bool upArrow, leftArrow, rightArrow, downArrow;
+static float playerSpeed = 0.0f;
+const float acceleration = 0.01f;
+GameObject2D* player;
+float maxSpeed = 0.05f;
+
+//global variable
+float moveAmount;
 
 
 int main(void) {
 
 	// Initialise the engine (create window, setup OpenGL backend)
-	int initResult = engineInit("GDV4002 - Applied Maths for Games", 1024, 1024);
+	int initResult = engineInit("GDV4002 - Applied Maths for Games", 1024, 1024, 10.0f);
 
 	// If the engine initialisation failed report error and exit
 	if (initResult != 0) {
@@ -24,12 +38,17 @@ int main(void) {
 	// the following section is variable initialization
 	// ------------------------------------------------
 	float pi = 3.14159265f;
-	addObject("player");
-	addObject("asteroid");
-	GameObject2D* player = getObject("player", "Resources\\Textures\\player1_ship.png");
-	GameObject2D* asteroid = getObject("asteroid", glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png");
+
+	//const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties
+	addObject("player", glm::vec2(0.0f, 0.0f), glm::radians(90.0f), glm::vec2(1.0f, 1.0f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
+	addObject("asteroid", glm::vec2(1.0f, 1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
+	player = getObject("player");
+	GameObject2D* asteroid = getObject("asteroid");
 	// ------------------------------------------------
 
+
+	setKeyboardHandler(myKeyboardHandler);	
+	setUpdateFunction(myEngineLoop);
 	// Enter main loop - this handles update and render calls
 	engineMainLoop();
 
@@ -39,4 +58,115 @@ int main(void) {
 	// return success :)
 	return 0;
 }
+
+void myEngineLoop(GLFWwindow* window, double tDelta)
+{
+	
+	playerControl(tDelta);
+	
+
+}
+
+void playerControl(double tDelta) {
+
+	float theta = player->orientation;
+	glm::vec2 forward = glm::vec2(std::cos(theta), std::sin(theta));
+	glm::vec2 vel;
+	
+
+	if (upArrow)
+		playerSpeed += acceleration;
+
+	if (downArrow)
+		playerSpeed -= acceleration;
+		
+
+	if (leftArrow)
+		player->orientation += glm::radians(90.0f) * static_cast<float>(tDelta);
+
+	if (rightArrow)
+		player->orientation -= glm::radians(90.0f) * static_cast<float>(tDelta);
+	
+	moveAmount = playerSpeed * static_cast<float>(tDelta);
+	vel = forward * moveAmount;
+	float normalizedSpeed = glm::length(vel);
+
+	if (normalizedSpeed > maxSpeed) {
+		vel = glm::normalize(vel);
+		vel = vel * maxSpeed;
+	}
+
+	normalizedSpeed = glm::length(vel);
+	std::cout << "Speed: " << normalizedSpeed << std::endl;
+	player->position += vel;
+
+
+
+	if(player->position.y > getViewplaneHeight() / 2)
+		player->position.y = -getViewplaneHeight() / 2;
+	if (player->position.y < -getViewplaneHeight() / 2)
+		player->position.y = getViewplaneHeight() / 2;
+
+	if(player->position.x > getViewplaneHeight() / 2)
+		player->position.x = -getViewplaneHeight() / 2;
+	if (player->position.x < -getViewplaneHeight() / 2)
+		player->position.x = getViewplaneHeight() / 2;
+}
+
+void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	// Check if the key was just pressed
+	if (action == GLFW_PRESS) {
+
+		// now check which key was pressed...
+		switch (key)
+		{
+		case GLFW_KEY_ESCAPE:
+			// If escape is pressed tell GLFW we want to close the 
+			// window(and quit)
+				glfwSetWindowShouldClose(window, true);
+			break;
+		case GLFW_KEY_UP:
+			upArrow = true;
+			break;
+
+		case GLFW_KEY_DOWN:
+			downArrow = true;
+			break;
+
+		case GLFW_KEY_LEFT:
+			leftArrow = true;
+			break;
+
+		case GLFW_KEY_RIGHT:
+			rightArrow = true;
+			break;
+
+		}
+	}
+	// If not pressed, check the key has just been released
+	else if (action == GLFW_RELEASE) {
+
+		switch (key)
+		{
+		case GLFW_KEY_UP:
+			upArrow = false;
+			break;
+
+		case GLFW_KEY_DOWN:
+			downArrow = false;
+			break;
+
+		case GLFW_KEY_LEFT:
+			leftArrow = false;
+			break;
+
+		case GLFW_KEY_RIGHT:
+			rightArrow = false;
+			break;
+
+		}
+	}
+}
+
 
