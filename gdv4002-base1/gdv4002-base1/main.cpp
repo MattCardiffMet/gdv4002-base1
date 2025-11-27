@@ -5,7 +5,7 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 void playerControl(double tDelta);
 
 
-// Function prototypes
+// Function lists
 
 bool upArrow, leftArrow, rightArrow, downArrow;
 static float playerSpeed = 0.0f;
@@ -13,7 +13,7 @@ const float acceleration = 0.01f;
 GameObject2D* player;
 float maxSpeed = 0.05f;
 
-//global variable
+//global variable list
 float moveAmount;
 
 
@@ -69,10 +69,12 @@ void myEngineLoop(GLFWwindow* window, double tDelta)
 
 void playerControl(double tDelta) {
 
+	// get the forward vector from the player's orientation
 	float theta = player->orientation;
 	glm::vec2 forward = glm::vec2(std::cos(theta), std::sin(theta));
 	glm::vec2 vel;
 	
+	// this chunk controls the players velocity
 
 	if (upArrow)
 		playerSpeed += acceleration;
@@ -80,6 +82,7 @@ void playerControl(double tDelta) {
 	if (downArrow)
 		playerSpeed -= acceleration;
 		
+	// this chunk controls the players rotation
 
 	if (leftArrow)
 		player->orientation += glm::radians(90.0f) * static_cast<float>(tDelta);
@@ -87,21 +90,25 @@ void playerControl(double tDelta) {
 	if (rightArrow)
 		player->orientation -= glm::radians(90.0f) * static_cast<float>(tDelta);
 	
+	// calculate velocity vector
 	moveAmount = playerSpeed * static_cast<float>(tDelta);
 	vel = forward * moveAmount;
 	float normalizedSpeed = glm::length(vel);
 
+	// stops speed going to high so the player doesn't fly so fast they're hard to notice
 	if (normalizedSpeed > maxSpeed) {
 		vel = glm::normalize(vel);
 		vel = vel * maxSpeed;
 	}
 
-	normalizedSpeed = glm::length(vel);
-	std::cout << "Speed: " << normalizedSpeed << std::endl;
-	player->position += vel;
+	// debug lines that output the current speed to console
+	// commented out to reduce spam
+	// normalizedSpeed = glm::length(vel);
+	// std::cout << "Speed: " << normalizedSpeed << std::endl;
+	// player->position += vel;
 
 
-
+	// this chunk wraps around screen edges
 	if(player->position.y > getViewplaneHeight() / 2)
 		player->position.y = -getViewplaneHeight() / 2;
 	if (player->position.y < -getViewplaneHeight() / 2)
