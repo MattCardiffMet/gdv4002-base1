@@ -1,20 +1,22 @@
 #include "Engine.h"
 
-void myEngineLoop(GLFWwindow* window, double tDelta);
+void myUpdateLoop(GLFWwindow* window, double tDelta);
 void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 void playerControl(double tDelta);
 
 
 // Function lists
 
-bool upArrow, leftArrow, rightArrow, downArrow;
+bool upArrow, leftArrow, rightArrow, downArrow, spaceBar;
 static float playerSpeed = 0.0f;
 const float acceleration = 0.01f;
+const float bulletSpeed = 0.002f;
 GameObject2D* player;
 float maxSpeed = 0.05f;
 
 //global variable list
 float moveAmount;
+float bulletMoveAmount;
 
 
 int main(void) {
@@ -42,13 +44,14 @@ int main(void) {
 	//const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties
 	addObject("player", glm::vec2(0.0f, 0.0f), glm::radians(90.0f), glm::vec2(1.0f, 1.0f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
 	addObject("asteroid", glm::vec2(1.0f, 1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
+	addObject("bullet", glm::vec2(-20.0f, -20.0f), 0.0f, glm::vec2(0.2f, 0.2f), "Resources\\Textures\\bullet.png", TextureProperties::NearestFilterTexture());
 	player = getObject("player");
 	GameObject2D* asteroid = getObject("asteroid");
 	// ------------------------------------------------
 
 
 	setKeyboardHandler(myKeyboardHandler);	
-	setUpdateFunction(myEngineLoop);
+	setUpdateFunction(myUpdateLoop);
 	// Enter main loop - this handles update and render calls
 	engineMainLoop();
 
@@ -59,11 +62,22 @@ int main(void) {
 	return 0;
 }
 
-void myEngineLoop(GLFWwindow* window, double tDelta)
+
+
+void myUpdateLoop(GLFWwindow* window, double tDelta)
 {
-	
+	//player update
 	playerControl(tDelta);
-	
+
+
+	//bullet update
+	GameObject2D* bullet = getObject("bullet");
+	float theta = player->orientation;
+	glm::vec2 forward = glm::vec2(std::cos(theta), std::sin(theta));
+	glm::vec2 vel;
+	bulletMoveAmount = bulletSpeed * static_cast<float>(tDelta);
+	glm::vec2 bulletVel = forward * bulletMoveAmount;
+	bullet->position += forward * 1.0f; // spawn bullet in front of player
 
 }
 
@@ -89,6 +103,16 @@ void playerControl(double tDelta) {
 
 	if (rightArrow)
 		player->orientation -= glm::radians(90.0f) * static_cast<float>(tDelta);
+
+	// bullet spawning
+
+	if (spaceBar) {
+		GameObject2D* bullet = getObject("bullet");
+		bullet->position = player->position; // spawn bullet at player position
+		bullet->orientation = player->orientation;
+		
+		
+	}
 	
 	// calculate velocity vector
 	moveAmount = playerSpeed * static_cast<float>(tDelta);
@@ -103,9 +127,9 @@ void playerControl(double tDelta) {
 
 	// debug lines that output the current speed to console
 	// commented out to reduce spam
-	// normalizedSpeed = glm::length(vel);
+	 normalizedSpeed = glm::length(vel);
 	// std::cout << "Speed: " << normalizedSpeed << std::endl;
-	// player->position += vel;
+	 player->position += vel;
 
 
 	// this chunk wraps around screen edges
@@ -149,6 +173,9 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 			rightArrow = true;
 			break;
 
+		case GLFW_KEY_SPACE:
+			spaceBar = true;
+			break;
 		}
 	}
 	// If not pressed, check the key has just been released
@@ -172,6 +199,9 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 			rightArrow = false;
 			break;
 
+		case GLFW_KEY_SPACE:
+			spaceBar = false;
+			break;
 		}
 	}
 }
