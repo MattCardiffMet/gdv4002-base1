@@ -31,6 +31,11 @@ int main(void) {
 		return initResult; // exit if setup failed
 	}
 
+	// background remove for the assets, allowing transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthFunc(GL_ALWAYS);
+
 	//
 	// Setup game scene objects here
 	//
@@ -43,10 +48,25 @@ int main(void) {
 
 	//const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties
 	addObject("player", glm::vec2(0.0f, 0.0f), glm::radians(90.0f), glm::vec2(1.0f, 1.0f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
-	addObject("asteroid", glm::vec2(1.0f, 1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
+	addObject("asteroid1", glm::vec2(1.0f, 1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
+	addObject("asteroid2", glm::vec2(1.0f, -1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
+	addObject("asteroid3", glm::vec2(-1.0f, 1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
+	addObject("asteroid4", glm::vec2(-1.0f, -1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
 	addObject("bullet", glm::vec2(-20.0f, -20.0f), 0.0f, glm::vec2(0.2f, 0.2f), "Resources\\Textures\\bullet.png", TextureProperties::NearestFilterTexture());
 	player = getObject("player");
-	GameObject2D* asteroid = getObject("asteroid");
+	GameObject2D* asteroid1 = getObject("asteroid1");
+	GameObject2D* asteroid2 = getObject("asteroid2");
+	GameObject2D* asteroid3 = getObject("asteroid3");
+	GameObject2D* asteroid4 = getObject("asteroid4");
+
+	// Asteroid Control !!
+
+	asteroid1->orientation = glm::radians(45.0f);
+	asteroid2->orientation = glm::radians(90.0f);
+	asteroid3->orientation = glm::radians(135.0f);
+	asteroid4->orientation = glm::radians(180.0f);
+	
+
 	// ------------------------------------------------
 
 
