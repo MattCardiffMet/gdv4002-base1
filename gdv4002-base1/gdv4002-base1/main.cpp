@@ -3,6 +3,7 @@
 void myUpdateLoop(GLFWwindow* window, double tDelta);
 void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 void playerControl(double tDelta);
+void updateAsteroid(GameObject2D* asteroid, double tDelta, float speed);
 
 
 // Function lists
@@ -12,7 +13,10 @@ static float playerSpeed = 0.0f;
 const float acceleration = 0.01f;
 const float bulletSpeed = 0.002f;
 GameObject2D* player;
+GameObject2D* asteroid1, *asteroid2, *asteroid3, *asteroid4;
 float maxSpeed = 0.05f;
+
+GameObject2D* asteroids = new GameObject2D[20];
 
 //global variable list
 float moveAmount;
@@ -54,10 +58,10 @@ int main(void) {
 	addObject("asteroid4", glm::vec2(-1.0f, -1.0f), 0.0f, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\mcblock01.png", TextureProperties::NearestFilterTexture());
 	addObject("bullet", glm::vec2(-20.0f, -20.0f), 0.0f, glm::vec2(0.2f, 0.2f), "Resources\\Textures\\bullet.png", TextureProperties::NearestFilterTexture());
 	player = getObject("player");
-	GameObject2D* asteroid1 = getObject("asteroid1");
-	GameObject2D* asteroid2 = getObject("asteroid2");
-	GameObject2D* asteroid3 = getObject("asteroid3");
-	GameObject2D* asteroid4 = getObject("asteroid4");
+	asteroid1 = getObject("asteroid1");
+	asteroid2 = getObject("asteroid2");
+	asteroid3 = getObject("asteroid3");
+	asteroid4 = getObject("asteroid4");
 
 	// Asteroid Control !!
 
@@ -88,6 +92,12 @@ void myUpdateLoop(GLFWwindow* window, double tDelta)
 {
 	//player update
 	playerControl(tDelta);
+
+	// moving asteroids update
+	updateAsteroid(asteroid1, tDelta, 2.0f);
+	updateAsteroid(asteroid2, tDelta, 1.015f);
+	updateAsteroid(asteroid3, tDelta, 3.02f);
+	updateAsteroid(asteroid4, tDelta, 4.025f);
 
 
 	//bullet update
@@ -226,4 +236,23 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 	}
 }
 
+void updateAsteroid(GameObject2D* asteroid, double tDelta, float speed) {
 
+	float theta = asteroid->orientation;
+	glm::vec2 forward = glm::vec2(std::cos(theta), std::sin(theta));
+
+	glm::vec2 vel;
+	float moveAmount = speed * (float) tDelta;
+	vel = forward * moveAmount;
+	asteroid->position += vel;
+
+	// screen wrap
+	if (asteroid->position.y > getViewplaneHeight() / 2)
+		asteroid->position.y = -getViewplaneHeight() / 2;
+	if (asteroid->position.y < -getViewplaneHeight() / 2)
+		asteroid->position.y = getViewplaneHeight() / 2;
+	if (asteroid->position.x > getViewplaneHeight() / 2)
+		asteroid->position.x = -getViewplaneHeight() / 2;
+	if (asteroid->position.x < -getViewplaneHeight() / 2)
+		asteroid->position.x = getViewplaneHeight() / 2;
+}
